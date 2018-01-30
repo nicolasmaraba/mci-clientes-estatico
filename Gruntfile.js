@@ -2,10 +2,22 @@ module.exports = function (grunt) {
     grunt.initConfig({
         copy: {
             main: {
-                expand: true,
-                cwd: 'src',
-                src: '**',
-                dest: 'www',
+                files: [{
+                    expand: true,
+                    cwd: 'src',
+                    src: '**',
+                    dest: 'www'
+                }, {
+                    expand: true,
+                    cwd: 'node_modules',
+                    flatten: true,
+                    src: [
+                        'jquery/dist/jquery.min.js',
+                        'bootstrap/dist/css/bootstrap.min.css',
+                        'bootstrap/dist/js/bootstrap.min.js'
+                    ],
+                    dest: 'www'
+                }]
             }
         },
         clean: ['www'],
@@ -17,9 +29,15 @@ module.exports = function (grunt) {
                 }
             }
         },
+        jshint: {
+            files: ['src/**/*.js'],
+            options: {
+                jshintrc: true
+            }
+        },
         watch: {
             files: ['src/**/*.*'],
-            tasks: ['clean', 'copy'],
+            tasks: ['clean', 'jshint', 'copy'],
             options: {
                 livereload: true
             }
@@ -30,6 +48,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    grunt.registerTask('default', ['clean', 'copy', 'connect', 'watch']);
+    grunt.registerTask('default', ['clean', 'jshint', 'copy', 'connect', 'watch']);
 };

@@ -1,0 +1,13 @@
+[{
+    "mci": 1,
+    "nome": "Chewbacca",
+    "documento": "123.456"
+},{
+    "mci": 2,
+    "nome": "Leia",
+    "documento": "111.222"
+},{
+    "mci": 3,
+    "nome": "Luke",
+    "documento": "333.222"
+}]

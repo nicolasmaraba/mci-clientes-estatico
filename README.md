@@ -281,6 +281,96 @@ tbody>(tr>(td>lorem4)*3)*5
 })();
 ```
 
+- Melhorando a qualidade do código - JShint
+- 
+
+
+jshint: {
+    files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+    options: {
+    globals: {
+        jQuery: true
+    }
+    }
+},
 ## Passo 4 - Obtendo dados "reais"
 - Instalando JQuery - npm install jquery -D
+- Ajustar tarefa de copy:
+```js
+copy: {
+    main: {
+        files: [{
+            expand: true,
+            cwd: 'src',
+            src: '**',
+            dest: 'www'
+        }, {
+            src: 'node_modules/jquery/dist/jquery.min.js',
+            dest: 'www/jquery.min.js'
+        }]
+    }
+},
+```
+- Incluir o jquery na página
+- Testar o jquery:
+```js
+function init() {
+    console.log('Testando jquery: ' +  jQuery().jquery);
+    console.log('Testando jquery: ' +  $().jquery);
+    var clientes = recuperaClientes();
+    atualizaListaClientes(clientes);
+}
+```
+- Recuperar a lista de clientes via JQuery:
+```js
+(function (undefined) {
+    init();
 
+    function init() {
+        recuperaClientes(function (clientes) {
+            atualizaListaClientes(clientes);
+        });
+    }
+
+    function recuperaClientes(callback) {
+        $.get('clientes.json', callback);
+    }
+
+    function atualizaListaClientes(clientes) {
+        clientes.forEach(function (cliente) {
+            console.log(cliente);
+            $('#tblClientes tr:last').after(
+                '<tr><td>' + cliente.mci + '</td><td>' + cliente.nome + '</td><td></td></tr>'
+            );
+        });
+    }
+})();
+```
+- Ajustar a url do get para weblogic
+- problema CORS / proxy reverso
+
+## Passo 5 - Detalhar
+- Instalar bootstrap - npm install -D bootstrap
+- Ajustar copoy
+```js
+copy: {
+    main: {
+        files: [{
+            expand: true,
+            cwd: 'src',
+            src: '**',
+            dest: 'www'
+        }, {
+            expand: true,
+            cwd: 'node_modules',
+            flatten: true,
+            src: [
+                'jquery/dist/jquery.min.js',
+                'bootstrap/dist/css/bootstrap.min.css',
+                'bootstrap/dist/js/bootstrap.min.js'
+            ],
+            dest: 'www'
+        }]
+    }
+},
+```
