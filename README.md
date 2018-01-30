@@ -6,7 +6,7 @@
 - git init
 - npm init
 - Criar pasta www
-- Criar index.html
+- Criar index.html (html:5)
 - npm install http-server --save-dev
 - Criar .gitignore com node_modules
 - node node_modules/http-server/bin/http-server www -p 9090
@@ -138,3 +138,149 @@ connect: {
 ```
 
 - Ok, podemos já dá pra começar!
+
+## Passo 3 - O CRUD
+
+- http://www.codemag.com/Article/1511031/CRUD-in-HTML-JavaScript-and-jQuery
+- Listagem de Produtos:
+```html
+<h1>Clientes</h1>
+<h2>Listagem</h2>
+table>thead>tr>(th>lorem1)*3
+tbody>(tr>(td>lorem4)*3)*5
+```
+- https://docs.emmet.io/cheatsheet-a5.pdf
+```html
+<tr>
+    <th>MCI</th>
+    <th>Nome</th>
+    <th>Ações</th>
+</tr>
+```
+- Temos que dar vida a nossa página: JavaScript!
+- Criar script.js
+- <script src="script.js"></script> antes do script de reload
+```js
+(function (undefined) {
+    console.log('Passou por aqui!');
+})();
+```
+- Ver log no console do developer tools
+- Criar lista de clientes no js - Escopo de bloco/função:
+```js
+(function (undefined) {
+    var clientes = [];
+    clientes.push({
+        mci: 1,
+        nome: 'Chewbacca',
+        documento: '123.456'
+    });
+
+    clientes.push({
+        mci: 2,
+        nome: 'Leia',
+        documento: '111.222'
+    });
+
+    clientes.push({
+        mci: 3,
+        nome: 'Luke',
+        documento: '333.222'
+    });
+
+    console.log('Quantidade de clientes: ' + clientes.length);
+})();
+```
+- Atualizando a lista de clientes via API do DOM:
+```js
+(function (undefined) {
+    var clientes = [];
+    clientes.push({
+        mci: 1,
+        nome: 'Chewbacca',
+        documento: '123.456'
+    });
+
+    clientes.push({
+        mci: 2,
+        nome: 'Leia',
+        documento: '111.222'
+    });
+
+    clientes.push({
+        mci: 3,
+        nome: 'Luke',
+        documento: '333.222'
+    });
+
+    var tblClientes = document.getElementById('tblClientes').getElementsByTagName('tbody')[0];
+
+    for (var i = 0; i < clientes.length; i++) {
+        var novaLinha = tblClientes.insertRow(tblClientes.rows.length);
+
+        var celulaMCI = novaLinha.insertCell(0);
+        var textoMCI = document.createTextNode(clientes[i].mci);
+        celulaMCI.appendChild(textoMCI);
+
+        var celulaNome = novaLinha.insertCell(1);
+        var textoNome = document.createTextNode(clientes[i].nome);
+        celulaNome.appendChild(textoNome);
+    }
+})();
+```
+
+- Isolando responsabilidades / Hoisting
+
+```js
+(function (undefined) {
+    init();
+
+    function init() {
+        var clientes = recuperaClientes();
+        atualizaListaClientes(clientes);
+    }
+
+    function recuperaClientes() {
+        var clientes = [];
+        clientes.push({
+            mci: 1,
+            nome: 'Chewbacca',
+            documento: '123.456'
+        });
+
+        clientes.push({
+            mci: 2,
+            nome: 'Leia',
+            documento: '111.222'
+        });
+
+        clientes.push({
+            mci: 3,
+            nome: 'Luke',
+            documento: '333.222'
+        });
+
+        return clientes;
+    }
+
+    function atualizaListaClientes(clientes) {
+        var tblClientes = document.getElementById('tblClientes').getElementsByTagName('tbody')[0];
+
+        for (var i = 0; i < clientes.length; i++) {
+            var novaLinha = tblClientes.insertRow(tblClientes.rows.length);
+
+            var celulaMCI = novaLinha.insertCell(0);
+            var textoMCI = document.createTextNode(clientes[i].mci);
+            celulaMCI.appendChild(textoMCI);
+
+            var celulaNome = novaLinha.insertCell(1);
+            var textoNome = document.createTextNode(clientes[i].nome);
+            celulaNome.appendChild(textoNome);
+        }
+    }
+})();
+```
+
+## Passo 4 - Obtendo dados "reais"
+- Instalando JQuery - npm install jquery -D
+
