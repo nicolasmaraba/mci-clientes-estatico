@@ -282,8 +282,28 @@ tbody>(tr>(td>lorem4)*3)*5
 ```
 
 - Melhorando a qualidade do código - JShint
-- 
+- Criar arquivo .jshintrc
+- Instalar a dependência jshint - npm install grunt-contrib-jshint -D
+- Ajustar o Gruntfile:
+```js
+jshint: {
+    files: ['src/**/*.js'],
+    options: {
+        jshintrc: true
+    }
+},
+watch: {
+    files: ['src/**/*.*'],
+    tasks: ['clean', 'jshint', 'copy'],
+    options: {
+        livereload: true
+    }
+}
 
+grunt.loadNpmTasks('grunt-contrib-jshint');
+
+grunt.registerTask('default', ['clean', 'jshint', 'copy', 'connect', 'watch']);
+```
 
 jshint: {
     files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
@@ -373,4 +393,43 @@ copy: {
         }]
     }
 },
+```
+
+- Incluir css e scripts na página, incluir classes do bootstrap:
+```html
+<body>
+    <div class="jumbotron text-center">
+        <h1>Clientes</h1>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <h2>Listagem</h2>
+        </div>
+
+        <div class="row">
+            <table id="tblClientes" class="table">
+                <thead>
+                    <tr>
+                        <th>MCI</th>
+                        <th>Nome</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
+    <script src="//localhost:35729/livereload.js"></script>
+</body>
+
+</html>
 ```
