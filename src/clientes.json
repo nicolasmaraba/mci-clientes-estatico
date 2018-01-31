@@ -1,13 +1,10 @@
 [{
     "mci": 1,
-    "nome": "Chewbacca",
-    "documento": "123.456"
+    "nome": "Chewbacca"
 },{
     "mci": 2,
-    "nome": "Leia",
-    "documento": "111.222"
+    "nome": "Leia"
 },{
     "mci": 3,
-    "nome": "Luke",
-    "documento": "333.222"
+    "nome": "Luke"
 }]

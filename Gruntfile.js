@@ -30,14 +30,26 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['src/**/*.js'],
             options: {
                 jshintrc: true
+            },
+            dev: {
+                options: {
+                    force: true
+                },
+                files: {
+                    src: ['src/**/*.js'],
+                }
+            },
+            dist: {
+                files: {
+                    src: ['src/**/*.js'],
+                }
             }
         },
         watch: {
             files: ['src/**/*.*'],
-            tasks: ['clean', 'jshint', 'copy'],
+            tasks: ['clean', 'jshint:dev', 'copy'],
             options: {
                 livereload: true
             }
@@ -50,5 +62,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    grunt.registerTask('default', ['clean', 'jshint', 'copy', 'connect', 'watch']);
+    grunt.registerTask('default', ['clean', 'jshint:dev', 'copy', 'connect', 'watch']);
+    grunt.registerTask('dist', ['clean', 'jshint', 'copy']);
 };
