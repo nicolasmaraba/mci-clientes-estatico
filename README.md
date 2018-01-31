@@ -124,17 +124,44 @@ watch: {
 - Cansei desse negócio de fazer npm start...
 - https://github.com/gruntjs/grunt-contrib-connect
 - npm install grunt-contrib-connect --save-dev
-- grunt.loadNpmTasks('grunt-contrib-connect');
-
+- Versão final do Gruntfile.js
 ```js
-connect: {
-    server: {
-        options: {
-            base: 'www',
-            port: 9090
+module.exports = function (grunt) {
+    grunt.initConfig({
+        copy: {
+            main: {
+                expand: true,
+                cwd: 'src',
+                src: '**',
+                dest: 'www',
+            }
+        },
+        clean: ['www'],
+        connect: {
+            server: {
+                options: {
+                    base: 'www',
+                    port: 9090
+                }
+            }
+        },
+        watch: {
+            files: ['src/**/*.*'],
+            tasks: ['clean', 'copy'],
+            options: {
+                livereload: true
+            }
         }
-    }
-},
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+
+    grunt.registerTask('default', ['clean', 'copy', 'connect', 'watch']);
+};
+
 ```
 
 - Ok, podemos já dá pra começar!
@@ -162,6 +189,8 @@ tbody>(tr>(td>lorem4)*3)*5
 - <script src="script.js"></script> antes do script de reload
 ```js
 (function (undefined) {
+    'use strict';
+
     console.log('Passou por aqui!');
 })();
 ```
@@ -169,6 +198,8 @@ tbody>(tr>(td>lorem4)*3)*5
 - Criar lista de clientes no js - Escopo de bloco/função:
 ```js
 (function (undefined) {
+    'use strict';
+
     var clientes = [];
     clientes.push({
         mci: 1,
@@ -284,35 +315,66 @@ tbody>(tr>(td>lorem4)*3)*5
 - Melhorando a qualidade do código - JShint
 - Criar arquivo .jshintrc
 - Instalar a dependência jshint - npm install grunt-contrib-jshint -D
+- Criar a task 'dist'
 - Ajustar o Gruntfile:
 ```js
-jshint: {
-    files: ['src/**/*.js'],
-    options: {
-        jshintrc: true
-    }
-},
-watch: {
-    files: ['src/**/*.*'],
-    tasks: ['clean', 'jshint', 'copy'],
-    options: {
-        livereload: true
-    }
-}
+module.exports = function (grunt) {
+    grunt.initConfig({
+        copy: {
+            main: {
+                expand: true,
+                cwd: 'src',
+                src: '**',
+                dest: 'www',
+            }
+        },
+        clean: ['www'],
+        connect: {
+            server: {
+                options: {
+                    base: 'www',
+                    port: 9090
+                }
+            }
+        },
+        jshint: {
+            options: {
+                jshintrc: true
+            },
+            dev: {
+                options: {
+                    force: true
+                },
+                files: {
+                    src: ['src/**/*.js'],
+                }
+            },
+            dist: {
+                files: {
+                    src: ['src/**/*.js'],
+                }
+            }
+        },
+        watch: {
+            files: ['src/**/*.*'],
+            tasks: ['clean', 'jshint:dev', 'copy'],
+            options: {
+                livereload: true
+            }
+        }
+    });
 
-grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
-grunt.registerTask('default', ['clean', 'jshint', 'copy', 'connect', 'watch']);
+    grunt.registerTask('default', ['clean', 'jshint:dev', 'copy', 'connect', 'watch']);
+    grunt.registerTask('dist', ['clean', 'jshint:dist', 'copy']);
+};
 ```
 
-jshint: {
-    files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
-    options: {
-    globals: {
-        jQuery: true
-    }
-    }
-},
 ## Passo 4 - Obtendo dados "reais"
 - Instalando JQuery - npm install jquery -D
 - Ajustar tarefa de copy:
@@ -341,15 +403,20 @@ function init() {
     atualizaListaClientes(clientes);
 }
 ```
+- Ajuste do array para forEach
 - Recuperar a lista de clientes via JQuery:
 ```js
 (function (undefined) {
     init();
 
     function init() {
+        // 1 versão
         recuperaClientes(function (clientes) {
             atualizaListaClientes(clientes);
         });
+
+        // 2 versão
+        recuperaClientes(atualizaListaClientes);
     }
 
     function recuperaClientes(callback) {
@@ -358,7 +425,6 @@ function init() {
 
     function atualizaListaClientes(clientes) {
         clientes.forEach(function (cliente) {
-            console.log(cliente);
             $('#tblClientes tr:last').after(
                 '<tr><td>' + cliente.mci + '</td><td>' + cliente.nome + '</td><td></td></tr>'
             );
@@ -366,12 +432,13 @@ function init() {
     }
 })();
 ```
-- Ajustar a url do get para weblogic
-- problema CORS / proxy reverso
+- Ajustar a URL do request AJAX para Weblogic
+- Problema CORS / proxy reverso
 
 ## Passo 5 - Detalhar
+- Primeiro vamos deixar a tela mais bonita
 - Instalar bootstrap - npm install -D bootstrap
-- Ajustar copoy
+- Ajustar copy
 ```js
 copy: {
     main: {
@@ -403,10 +470,13 @@ copy: {
     </div>
 
     <div class="container">
+        <!-- Cabeçalho -->
         <div class="row">
             <h2>Listagem</h2>
         </div>
+        <!-- FIM: Cabeçalho -->
 
+        <!-- Tabela de Clientes -->
         <div class="row">
             <table id="tblClientes" class="table">
                 <thead>
@@ -420,13 +490,12 @@ copy: {
                 </tbody>
             </table>
         </div>
+        <!-- FIM: Tabela de Clientes -->
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Detalhar -->
     <div class="modal fade" id="mdlDetalhaCliente" role="dialog">
         <div class="modal-dialog">
-
-            <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -447,6 +516,7 @@ copy: {
             </div>
         </div>
     </div>
+    <!-- FIM: Modal Detalhar -->
 
     <script src="jquery.min.js"></script>
     <script src="bootstrap.min.js"></script>
@@ -503,3 +573,18 @@ var app = (function (undefined) {
 
 app.init();
 ```
+
+- Jumbotron ficou muito grande, vamos diminuí-lo
+- Criar arquivo styles.css
+```css
+.jumbotron {
+    padding: 0.5em 0.6em;
+}
+
+.jumbotron h1 {
+    font-size: 2em;
+}
+```
+
+## Passo 6 - Incluir
+- Colocar um botão de inclusão na página

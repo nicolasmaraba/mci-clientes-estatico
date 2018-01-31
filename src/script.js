@@ -35,9 +35,28 @@ var app = (function (undefined) {
         });
     }
 
+    function incluirCliente() {
+        var cliente = {};
+        cliente.nome = $('#inputNome').val().trim();
+
+        if (!cliente.nome) {
+            window.alert('Nome não pode ser vazio!');
+            return;
+        }
+
+        cliente.documento = $('#inputDocumento').val().trim();
+        if (!cliente.documento) {
+            window.alert('Documento não pode ser vazio!');
+            return;
+        }
+
+        
+    }
+
     return {
         init: init,
-        detalharCliente: detalharCliente
+        detalharCliente: detalharCliente,
+        incluirCliente: incluirCliente
     };
 })();
 
