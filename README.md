@@ -421,15 +421,85 @@ copy: {
             </table>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="mdlDetalhaCliente" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <table id="tblDetalhaCliente" class="table">
+                        <thead>
+                            <tr>
+                                <th>MCI</th>
+                                <th>Nome</th>
+                                <th>Documento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="jquery.min.js"></script>
     <script src="bootstrap.min.js"></script>
     <link rel="stylesheet" href="bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css">
     <script src="script.js"></script>
     <script src="//localhost:35729/livereload.js"></script>
 </body>
+```
 
-</html>
+- Ajustar js:
+```js
+var app = (function (undefined) {
+    'use strict';
+
+    function init() {
+        console.log('Aplicação iniciada!');
+        recuperaClientes(function (clientes) {
+            atualizaListaClientes(clientes);
+        });
+    }
+
+    function recuperaClientes(callback) {
+        $.get('clientes.json', callback);
+    }
+
+    function detalharCliente(mci) {
+        $.get(mci + '.json', function (cliente) {
+            $('#tblDetalhaCliente tbody').empty();
+            $('#tblDetalhaCliente tbody').append(
+                '<tr><td>' + cliente.mci + '</td><td>' + cliente.nome + '</td><td>' + cliente.documento + '</td></tr>'
+            );
+            $('#mdlDetalhaCliente').modal('show');
+        });
+    }
+
+    function atualizaListaClientes(clientes) {
+        $('#tblClientes tbody').empty();
+        clientes.forEach(function (cliente) {
+            $('#tblClientes tbody').append(
+                '<tr><td>' + cliente.mci + '</td>' + 
+                '<td>' + cliente.nome + '</td>' + 
+                '<td><div class="btn-group" role="group">' +
+                '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
+                '</div></td></tr>'
+            );
+        });
+    }
+
+    return {
+        init: init,
+        detalharCliente: detalharCliente
+    };
+})();
+
+app.init();
 ```
