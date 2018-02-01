@@ -617,3 +617,82 @@ app.init();
 
 ## Passo 6 - Incluir
 - Colocar um botão de inclusão na página
+
+```html
+<!-- FIM: Tabela de Clientes -->
+
+<div class="row">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mdlIncluirCliente">
+        Incluir
+    </button>
+</div>
+```
+
+- Criar formulário de inclusão:
+```html
+<!-- Modal Incluir -->
+<div class="modal fade" id="mdlIncluirCliente" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="inputNome">Nome</label>
+                        <input type="text" class="form-control" id="inputNome" placeholder="Digite o nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="inputDocumento">Documento</label>
+                        <input type="text" class="form-control" id="inputDocumento" placeholder="Digite o documento">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="app.incluirCliente()">Incluir</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIM: Modal Incluir -->
+```
+
+- Criar função de inclusão e disponibilizá-la no objeto app:
+
+```js
+function incluirCliente() {
+    var cliente = {};
+    cliente.nome = $('#inputNome').val().trim();
+
+    if (!cliente.nome) {
+        window.alert('Nome não pode ser vazio!');
+        return;
+    }
+
+    cliente.documento = $('#inputDocumento').val().trim();
+    if (!cliente.documento) {
+        window.alert('Documento não pode ser vazio!');
+        return;
+    }
+
+    $.ajax({
+        url: '/mci-clientes-api/api/clientes',
+        type: 'POST',
+        data: JSON.stringify(cliente),
+        contentType: 'application/json',
+        success: function () {
+            $('#mdlIncluirCliente').modal('hide');
+            init();
+        }
+    });
+}
+
+return {
+    init: init,
+    detalharCliente: detalharCliente,
+    incluirCliente: incluirCliente
+};
+```
+- Extra: Limpar formulário
