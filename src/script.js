@@ -55,6 +55,7 @@ var app = (function (undefined) {
                 '<td><div class="btn-group" role="group">' +
                 '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
                 '<button type="button" class="btn btn-info" onclick="app.colocarClienteEmEdicao(' + cliente.mci + ')">Alterar</button>' +
+                '<button type="button" class="btn btn-danger" onclick="app.excluirCliente(' + cliente.mci + ')">Excluir</button>' +
                 '</div></td></tr>'
             );
         });
@@ -81,6 +82,8 @@ var app = (function (undefined) {
             data: JSON.stringify(cliente),
             contentType: 'application/json',
             success: function () {
+                $('#inputNome').val('');
+                $('#inputDocumento').val('');
                 $('#mdlIncluirCliente').modal('hide');
                 init();
             }
@@ -123,12 +126,25 @@ var app = (function (undefined) {
         });
     }
 
+    function excluirCliente(mci) {
+        if(window.confirm('Deseja realmente excluir o cliente?')) {
+            $.ajax({
+                url: '/mci-clientes-api/api/clientes/' + mci,
+                type: 'DELETE',
+                success: function() {
+                    init();
+                }
+            });
+        }
+    }
+
     return {
         init: init,
         detalharCliente: detalharCliente,
         incluirCliente: incluirCliente,
         alterarCliente: alterarCliente,
-        colocarClienteEmEdicao: colocarClienteEmEdicao
+        colocarClienteEmEdicao: colocarClienteEmEdicao,
+        excluirCliente: excluirCliente
     };
 })();
 

@@ -684,6 +684,8 @@ function incluirCliente() {
         data: JSON.stringify(cliente),
         contentType: 'application/json',
         success: function () {
+            $('#inputNome').val('');
+            $('#inputDocumento').val('');
             $('#mdlIncluirCliente').modal('hide');
             init();
         }
@@ -818,4 +820,62 @@ return {
     </div>
 </div>
 <!-- FIM: Modal Alterar -->
+```
+
+## Passo 8 - Excluir
+- Nosso último passo é excluir um cliente da lista, primeiro incluiremos o botão de exclusão na tabela de clientes:
+```js
+function atualizaListaClientes(clientes) {
+    $('#tblClientes tbody').empty();
+    clientes.forEach(function (cliente) {
+        $('#tblClientes tbody').append(
+            '<tr><td>' + cliente.mci + '</td>' +
+            '<td>' + cliente.nome + '</td>' +
+            '<td><div class="btn-group" role="group">' +
+            '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
+            '<button type="button" class="btn btn-info" onclick="app.colocarClienteEmEdicao(' + cliente.mci + ')">Alterar</button>' +
+
+            // Código novo aqui!
+            '<button type="button" class="btn btn-danger" onclick="app.excluirCliente(' + cliente.mci + ')">Excluir</button>' +
+
+            '</div></td></tr>'
+        );
+    });
+}
+```
+
+- Agora é só criar o método que de fato exclui e exportá-lo para o objeto global:
+
+```js
+function excluirCliente(mci) {
+    if(window.confirm('Deseja realmente excluir o cliente?')) {
+        $.ajax({
+            url: '/mci-clientes-api/api/clientes/' + mci,
+            type: 'DELETE',
+            success: function() {
+                init();
+            }
+        });
+    }
+}
+
+return {
+    init: init,
+    detalharCliente: detalharCliente,
+    incluirCliente: incluirCliente,
+    alterarCliente: alterarCliente,
+    colocarClienteEmEdicao: colocarClienteEmEdicao,
+    excluirCliente: excluirCliente
+};
+```
+
+## Bug quando a lista tem somente um cliente
+- O bug é explicado aqui: [Missing Brackets At JSON One-Element Arrays In Jersey](https://blogs.oracle.com/japod/missing-brackets-at-json-one-element-arrays-in-jersey)
+- Mas a solução melhor é incluir a dependência abaixo no pom.xml
+```xml
+<dependency>
+    <groupId>org.codehaus.jackson</groupId>
+    <artifactId>jackson-jaxrs</artifactId>
+    <version>1.9.0</version>
+</dependency>
 ```
