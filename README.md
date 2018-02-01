@@ -375,7 +375,7 @@ module.exports = function (grunt) {
 };
 ```
 
-## Passo 4 - Obtendo dados "reais"
+## Passo 4 - Obtendo dados "reais" (AJAX sem JQuery e com JQuery)
 - Instalando JQuery - npm install jquery -D
 - Ajustar tarefa de copy:
 ```js
@@ -393,7 +393,7 @@ copy: {
     }
 },
 ```
-- Incluir o jquery na página
+- Incluir o jquery na página (AJAX sem JQuery e com JQuery)
 - Testar o jquery:
 ```js
 function init() {
@@ -404,7 +404,8 @@ function init() {
 }
 ```
 - Ajuste do array para forEach
-- Recuperar a lista de clientes via JQuery:
+- Recuperar a lista de clientes sem JQuery e com JQuery:
+- Single thread
 ```js
 (function (undefined) {
     init();
@@ -420,7 +421,29 @@ function init() {
     }
 
     function recuperaClientes(callback) {
-        $.get('clientes.json', callback);
+        // 1a. Versão
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/mci-clientes-api/api/clientes', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                var resposta = JSON.parse(xhr.responseText);
+                callback(resposta.listaClientes);
+            }
+        };
+        xhr.send();
+
+        // 2a. Versão
+        $.ajax({
+            url: '/mci-clientes-api/api/clientes',
+            success: function (resposta) {
+                callback(resposta.listaClientes);
+            }
+        });
+
+        // 3a. Versão
+        $.get('/mci-clientes-api/api/clientes', function (resposta) {
+            callback(resposta.listaClientes);
+        });
     }
 
     function atualizaListaClientes(clientes) {
@@ -434,6 +457,12 @@ function init() {
 ```
 - Ajustar a URL do request AJAX para Weblogic
 - Problema CORS / proxy reverso
+
+ProxyPass 			/mci-clientes-api 	http://localhost:7001/mci-clientes-api
+ProxyPassReverse 	/mci-clientes-api 	http://localhost:7001/mci-clientes-api
+
+ProxyPass 			/mci-clientes 	http://127.0.0.1:9090/
+ProxyPassReverse 	/mci-clientes 	http://127.0.0.1:9090/
 
 ## Passo 5 - Detalhar
 - Primeiro vamos deixar a tela mais bonita
