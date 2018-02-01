@@ -2,7 +2,7 @@
 
 ## Passo 1 - Iniciando o projeto
 
-- Criar diretório
+- Criar diretório 'mci-clientes-estatico'
 - git init
 - npm init
 - Criar pasta www
