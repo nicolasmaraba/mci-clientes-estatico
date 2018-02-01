@@ -549,10 +549,10 @@ copy: {
     </div>
     <!-- FIM: Modal Detalhar -->
 
-    <script src="jquery.min.js"></script>
-    <script src="bootstrap.min.js"></script>
-    <link rel="stylesheet" href="bootstrap.min.css">
-    <script src="script.js"></script>
+    <script src="/mci-clientes/jquery.min.js"></script>
+    <script src="/mci-clientes/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/mci-clientes/bootstrap.min.css">
+    <script src="/mci-clientes/script.js"></script>
     <script src="//localhost:35729/livereload.js"></script>
 </body>
 ```
@@ -563,18 +563,17 @@ var app = (function (undefined) {
     'use strict';
 
     function init() {
-        console.log('Aplicação iniciada!');
-        recuperaClientes(function (clientes) {
-            atualizaListaClientes(clientes);
+        recuperaClientes(function (resposta) {
+            atualizaListaClientes(resposta.listaClientes);
         });
     }
 
     function recuperaClientes(callback) {
-        $.get('clientes.json', callback);
+        $.get('/mci-clientes-api/api/clientes', callback);
     }
 
     function detalharCliente(mci) {
-        $.get(mci + '.json', function (cliente) {
+        $.get('/mci-clientes-api/api/clientes/' + mci, function (cliente) {
             $('#tblDetalhaCliente tbody').empty();
             $('#tblDetalhaCliente tbody').append(
                 '<tr><td>' + cliente.mci + '</td><td>' + cliente.nome + '</td><td>' + cliente.documento + '</td></tr>'
