@@ -629,7 +629,7 @@ app.init();
 </div>
 ```
 
-- Criar formulário de inclusão:
+- Criar formulário de inclusão, pode ser logo após a div que fecha a row do botão de inclusão:
 ```html
 <!-- Modal Incluir -->
 <div class="modal fade" id="mdlIncluirCliente" role="dialog">
@@ -694,11 +694,12 @@ function incluirCliente() {
 
 return {
     init: init,
+
+    // Código novo aqui!
     detalharCliente: detalharCliente,
     incluirCliente: incluirCliente
 };
 ```
-- Extra: Limpar formulário
 
 ## Passo 7 - Alterar
 - Logo no começo do nosso arquivo script.js vamos criar uma variável para guardar o cliente atualmente em edição:
@@ -706,7 +707,7 @@ return {
 var app = (function (undefined) {
     'use strict';
 
-    // Código novo aqui
+    // Código novo aqui!
     var clienteEmEdicao;
 
     function init() {
@@ -729,7 +730,7 @@ function atualizaListaClientes(clientes) {
             '<td><div class="btn-group" role="group">' +
             '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
 
-            // Código novo aqui
+            // Código novo aqui!
             '<button type="button" class="btn btn-info" onclick="app.colocarClienteEmEdicao(' + cliente.mci + ')">Alterar</button>' +
 
             '</div></td></tr>'
@@ -879,3 +880,8 @@ return {
     <version>1.9.0</version>
 </dependency>
 ```
+
+## Desafios:
+- Desativar o botão de incluir/salvar durante a inclusão/alteração se o formulário estiver inválido
+- Mensagens de sucesso/fracasso ao efetuar operações no servidor (Registro incluído com sucesso/Erro ao salvar, etc)
+- Spinner com overlay enquanto uma operação estiver sendo executada no servidor
