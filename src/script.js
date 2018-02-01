@@ -1,6 +1,8 @@
 var app = (function (undefined) {
     'use strict';
 
+    var clienteEmEdicao;
+
     function init() {
         console.log('Aplicação iniciada!');
         recuperaClientes(function (clientes) {
@@ -52,6 +54,7 @@ var app = (function (undefined) {
                 '<td>' + cliente.nome + '</td>' +
                 '<td><div class="btn-group" role="group">' +
                 '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
+                '<button type="button" class="btn btn-info" onclick="app.colocarClienteEmEdicao(' + cliente.mci + ')">Alterar</button>' +
                 '</div></td></tr>'
             );
         });
@@ -84,10 +87,48 @@ var app = (function (undefined) {
         });
     }
 
+    function colocarClienteEmEdicao(mci) {
+        $.get('/mci-clientes-api/api/clientes/' + mci, function (cliente) {
+            clienteEmEdicao = cliente;
+            $('#mciClienteEdicao').text(clienteEmEdicao.mci);
+            $('#inputAlterarNome').val(clienteEmEdicao.nome);
+            $('#inputAlterarDocumento').val(clienteEmEdicao.documento);
+            $('#mdlAlterarCliente').modal('show');
+        });
+    }
+
+    function alterarCliente() {
+        clienteEmEdicao.nome = $('#inputAlterarNome').val().trim();
+
+        if (!clienteEmEdicao.nome) {
+            window.alert('Nome não pode ser vazio!');
+            return;
+        }
+
+        clienteEmEdicao.documento = $('#inputAlterarDocumento').val().trim();
+        if (!clienteEmEdicao.documento) {
+            window.alert('Documento não pode ser vazio!');
+            return;
+        }
+
+        $.ajax({
+            url: '/mci-clientes-api/api/clientes/' + clienteEmEdicao.mci,
+            type: 'PUT',
+            data: JSON.stringify(clienteEmEdicao),
+            contentType: 'application/json',
+            success: function () {
+                $('#mdlAlterarCliente').modal('hide');
+                init();
+            }
+        });
+    }
+
     return {
         init: init,
         detalharCliente: detalharCliente,
-        incluirCliente: incluirCliente
+        incluirCliente: incluirCliente,
+        alterarCliente: alterarCliente,
+        colocarClienteEmEdicao: colocarClienteEmEdicao
     };
 })();
 

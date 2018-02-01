@@ -697,3 +697,125 @@ return {
 };
 ```
 - Extra: Limpar formulário
+
+## Passo 7 - Alterar
+- Logo no começo do nosso arquivo script.js vamos criar uma variável para guardar o cliente atualmente em edição:
+```js
+var app = (function (undefined) {
+    'use strict';
+
+    // Código novo aqui
+    var clienteEmEdicao;
+
+    function init() {
+        console.log('Aplicação iniciada!');
+        recuperaClientes(function (clientes) {
+            atualizaListaClientes(clientes);
+        });
+    }
+
+```
+
+- Agora vamos ajustar a função que insere os clientes na listagem, incluindo um botão em cada linha de tabela que colocará o cliente em edição:
+```js
+function atualizaListaClientes(clientes) {
+    $('#tblClientes tbody').empty();
+    clientes.forEach(function (cliente) {
+        $('#tblClientes tbody').append(
+            '<tr><td>' + cliente.mci + '</td>' +
+            '<td>' + cliente.nome + '</td>' +
+            '<td><div class="btn-group" role="group">' +
+            '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
+
+            // Código novo aqui
+            '<button type="button" class="btn btn-info" onclick="app.colocarClienteEmEdicao(' + cliente.mci + ')">Alterar</button>' +
+
+            '</div></td></tr>'
+        );
+    });
+}
+```
+
+- Vamos criar as duas funções, uma que coloca o cliente em edição e exibe a modal para edição e outra que persiste a edição via AJAX no servidor, lembrando que estas funções deve ser expostas no objeto global 'app':
+
+```js
+// Nova função
+function colocarClienteEmEdicao(mci) {
+    $.get('/mci-clientes-api/api/clientes/' + mci, function (cliente) {
+        clienteEmEdicao = cliente;
+        $('#mciClienteEdicao').text(clienteEmEdicao.mci);
+        $('#inputAlterarNome').val(clienteEmEdicao.nome);
+        $('#inputAlterarDocumento').val(clienteEmEdicao.documento);
+        $('#mdlAlterarCliente').modal('show');
+    });
+}
+
+// Nova função
+function alterarCliente() {
+    clienteEmEdicao.nome = $('#inputAlterarNome').val().trim();
+
+    if (!clienteEmEdicao.nome) {
+        window.alert('Nome não pode ser vazio!');
+        return;
+    }
+
+    clienteEmEdicao.documento = $('#inputAlterarDocumento').val().trim();
+    if (!clienteEmEdicao.documento) {
+        window.alert('Documento não pode ser vazio!');
+        return;
+    }
+
+    $.ajax({
+        url: '/mci-clientes-api/api/clientes/' + clienteEmEdicao.mci,
+        type: 'PUT',
+        data: JSON.stringify(clienteEmEdicao),
+        contentType: 'application/json',
+        success: function () {
+            $('#mdlAlterarCliente').modal('hide');
+            init();
+        }
+    });
+}
+
+return {
+    init: init,
+    detalharCliente: detalharCliente,
+    incluirCliente: incluirCliente,
+
+    // Código novo aqui
+    alterarCliente: alterarCliente,
+    colocarClienteEmEdicao: colocarClienteEmEdicao
+};
+```
+
+- Agora só falta ajustar o html colocando a nova modal logo abaixo do fim da modal de inclusão:
+```html
+<!-- Modal Alterar -->
+<div class="modal fade" id="mdlAlterarCliente" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>MCI: <span id="mciClienteEdicao"></span></h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="inputNome">Nome</label>
+                        <input type="text" class="form-control" id="inputAlterarNome" placeholder="Digite o nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="inputDocumento">Documento</label>
+                        <input type="text" class="form-control" id="inputAlterarDocumento" placeholder="Digite o documento">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="app.alterarCliente()">Salvar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIM: Modal Alterar -->
+```
