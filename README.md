@@ -457,12 +457,13 @@ function init() {
 ```
 - Ajustar a URL do request AJAX para Weblogic
 - Problema CORS / proxy reverso
-
+```
 ProxyPass 			/mci-clientes-api 	http://localhost:7001/mci-clientes-api
 ProxyPassReverse 	/mci-clientes-api 	http://localhost:7001/mci-clientes-api
 
 ProxyPass 			/mci-clientes 	http://127.0.0.1:9090/
 ProxyPassReverse 	/mci-clientes 	http://127.0.0.1:9090/
+```
 
 ## Passo 5 - Detalhar
 - Primeiro vamos deixar a tela mais bonita
