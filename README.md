@@ -457,7 +457,7 @@ function init() {
 ```
 - Ajustar a URL do request AJAX para Weblogic
 - Problema CORS / proxy reverso
-- Incluir as linhas abaixo no arquivo defautl-ssl.conf
+- Incluir as linhas abaixo no arquivo /etc/apache2/sites-enabled/default-ssl.conf:
 ```
 ProxyPass          /mci-clientes-api    http://localhost:7001/mci-clientes-api
 ProxyPassReverse   /mci-clientes-api    http://localhost:7001/mci-clientes-api
