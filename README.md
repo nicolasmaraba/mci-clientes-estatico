@@ -711,9 +711,8 @@ var app = (function (undefined) {
     var clienteEmEdicao;
 
     function init() {
-        console.log('Aplicação iniciada!');
-        recuperaClientes(function (clientes) {
-            atualizaListaClientes(clientes);
+        recuperaClientes(function (resposta) {
+            atualizaListaClientes(resposta.listaClientes);
         });
     }
 
