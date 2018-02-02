@@ -876,7 +876,7 @@ return {
 <dependency>
     <groupId>org.codehaus.jackson</groupId>
     <artifactId>jackson-jaxrs</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.13</version>
 </dependency>
 ```
 
