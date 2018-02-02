@@ -413,7 +413,7 @@ function init() {
     function init() {
         // 1 versão
         recuperaClientes(function (clientes) {
-            atualizaListaClientes(clientes);
+            atualizaListaClientes(resposta.listaClientes);
         });
 
         // 2 versão
