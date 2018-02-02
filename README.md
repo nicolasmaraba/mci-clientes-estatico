@@ -884,3 +884,372 @@ return {
 - Desativar o botão de incluir/salvar durante a inclusão/alteração se o formulário estiver inválido
 - Mensagens de sucesso/fracasso ao efetuar operações no servidor (Registro incluído com sucesso/Erro ao salvar, etc)
 - Spinner com overlay enquanto uma operação estiver sendo executada no servidor
+
+## Versão Final Com Desafios
+- script.js
+```js
+var app = (function (undefined) {
+    'use strict';
+
+    var clienteEmEdicao;
+
+    $(document).ajaxStart(function () {
+        $('#spinner').css('display', 'block');
+    });
+
+    $(document).ajaxStop(function () {
+        $('#spinner').css('display', 'none');
+    });
+
+    function monitorarAlteracoesInput(id, callback) {
+        $('#' + id).bind('propertychange change click keyup input paste', callback);
+    }
+
+    function mostrarMensagemSucesso(mensagem) {
+        var id = '#msgSuccess';
+        $(id).text(mensagem);
+        $(id).css('display', 'block');
+        setTimeout(function () {
+            $(id).css('display', 'none');
+        }, 5000);
+    }
+
+    function mostrarMensagemErro(mensagem) {
+        var id = '#msgDanger';
+        $(id).text(mensagem);
+        $(id).css('display', 'block');
+        setTimeout(function () {
+            $(id).css('display', 'none');
+        }, 5000);
+    }
+
+    function validaIncluirCliente() {
+        var cliente = {};
+        cliente.nome = $('#inputNome').val().trim();
+        cliente.documento = $('#inputDocumento').val().trim();
+
+        if (cliente.nome && cliente.documento) {
+            $('#btnIncluirCliente').prop('disabled', false);
+        } else {
+            $('#btnIncluirCliente').prop('disabled', true);
+        }
+    }
+
+    function init() {
+        monitorarAlteracoesInput('inputNome', validaIncluirCliente);
+        monitorarAlteracoesInput('inputDocumento', validaIncluirCliente);
+
+        recuperaClientes(function (resposta) {
+            atualizaListaClientes(resposta.listaClientes);
+        });
+    }
+
+    function recuperaClientes(callback) {
+        $.get('/mci-clientes-api/api/clientes', callback);
+    }
+
+    function detalharCliente(mci) {
+        $.get('/mci-clientes-api/api/clientes/' + mci, function (cliente) {
+            $('#tblDetalhaCliente tbody').empty();
+            $('#tblDetalhaCliente tbody').append(
+                '<tr><td>' + cliente.mci + '</td><td>' + cliente.nome + '</td><td>' + cliente.documento + '</td></tr>'
+            );
+            $('#mdlDetalhaCliente').modal('show');
+        });
+    }
+
+    function atualizaListaClientes(clientes) {
+        $('#tblClientes tbody').empty();
+        clientes.forEach(function (cliente) {
+            $('#tblClientes tbody').append(
+                '<tr><td>' + cliente.mci + '</td>' +
+                '<td>' + cliente.nome + '</td>' +
+                '<td><div class="btn-group" role="group">' +
+                '<button type="button" class="btn btn-info" onclick="app.detalharCliente(' + cliente.mci + ')">Detalhar</button>' +
+                '<button type="button" class="btn btn-info" onclick="app.colocarClienteEmEdicao(' + cliente.mci + ')">Alterar</button>' +
+                '<button type="button" class="btn btn-danger" onclick="app.excluirCliente(' + cliente.mci + ')">Excluir</button>' +
+                '</div></td></tr>'
+            );
+        });
+    }
+
+    function incluirCliente() {
+        var cliente = {};
+        cliente.nome = $('#inputNome').val().trim();
+
+        if (!cliente.nome) {
+            window.alert('Nome não pode ser vazio!');
+            return;
+        }
+
+        cliente.documento = $('#inputDocumento').val().trim();
+        if (!cliente.documento) {
+            window.alert('Documento não pode ser vazio!');
+            return;
+        }
+
+        $.ajax({
+            url: '/mci-clientes-api/api/clientesxxx',
+            type: 'POST',
+            data: JSON.stringify(cliente),
+            contentType: 'application/json',
+            success: function () {
+                mostrarMensagemSucesso('Cliente incluído com sucesso!');
+                $('#inputNome').val('');
+                $('#inputDocumento').val('');
+                $('#mdlIncluirCliente').modal('hide');
+                init();
+            },
+            error: function () {
+                mostrarMensagemErro('Ocorreu um erro, tente mais tarde...');
+            }
+        });
+    }
+
+    function colocarClienteEmEdicao(mci) {
+        $.get('/mci-clientes-api/api/clientes/' + mci, function (cliente) {
+            clienteEmEdicao = cliente;
+            $('#mciClienteEdicao').text(clienteEmEdicao.mci);
+            $('#inputAlterarNome').val(clienteEmEdicao.nome);
+            $('#inputAlterarDocumento').val(clienteEmEdicao.documento);
+            $('#mdlAlterarCliente').modal('show');
+        });
+    }
+
+    // Nova função
+    function alterarCliente() {
+        clienteEmEdicao.nome = $('#inputAlterarNome').val().trim();
+
+        if (!clienteEmEdicao.nome) {
+            window.alert('Nome não pode ser vazio!');
+            return;
+        }
+
+        clienteEmEdicao.documento = $('#inputAlterarDocumento').val().trim();
+        if (!clienteEmEdicao.documento) {
+            window.alert('Documento não pode ser vazio!');
+            return;
+        }
+
+        $.ajax({
+            url: '/mci-clientes-api/api/clientes/' + clienteEmEdicao.mci,
+            type: 'PUT',
+            data: JSON.stringify(clienteEmEdicao),
+            contentType: 'application/json',
+            success: function () {
+                $('#mdlAlterarCliente').modal('hide');
+                init();
+            }
+        });
+    }
+
+    function excluirCliente(mci) {
+        if (window.confirm('Deseja realmente excluir o cliente?')) {
+            $.ajax({
+                url: '/mci-clientes-api/api/clientes/' + mci,
+                type: 'DELETE',
+                success: function () {
+                    init();
+                }
+            });
+        }
+    }
+
+    return {
+        init: init,
+        detalharCliente: detalharCliente,
+        incluirCliente: incluirCliente,
+        alterarCliente: alterarCliente,
+        colocarClienteEmEdicao: colocarClienteEmEdicao,
+        excluirCliente: excluirCliente
+    };
+})();
+
+app.init();
+```
+
+- index.html
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MCI Clientes API</title>
+</head>
+
+<body>
+    <div id="spinner" class="loader" style="display: none"></div>
+
+    <div class="jumbotron text-center">
+        <h1>Clientes</h1>
+    </div>
+
+    <div class="container">
+
+        <div id="msgSuccess" style="display: none" class="alert alert-success" role="alert"></div>
+        <div id="msgDanger" style="display: none" class="alert alert-danger" role="alert"></div>
+
+        <!-- Cabeçalho -->
+        <div class="row">
+            <h2>Listagem</h2>
+        </div>
+        <!-- FIM: Cabeçalho -->
+
+        <!-- Tabela de Clientes -->
+        <div class="row">
+            <table id="tblClientes" class="table">
+                <thead>
+                    <tr>
+                        <th>MCI</th>
+                        <th>Nome</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <!-- FIM: Tabela de Clientes -->
+        <div class="row">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mdlIncluirCliente">
+                Incluir
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Detalhar -->
+    <div class="modal fade" id="mdlDetalhaCliente" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <table id="tblDetalhaCliente" class="table">
+                        <thead>
+                            <tr>
+                                <th>MCI</th>
+                                <th>Nome</th>
+                                <th>Documento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIM: Modal Detalhar -->
+
+    <!-- Modal Incluir -->
+    <div class="modal fade" id="mdlIncluirCliente" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="inputNome">Nome</label>
+                            <input type="text" class="form-control" id="inputNome" placeholder="Digite o nome">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDocumento">Documento</label>
+                            <input type="text" class="form-control" id="inputDocumento" placeholder="Digite o documento">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnIncluirCliente" onclick="app.incluirCliente()" disabled>Incluir</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIM: Modal Incluir -->
+
+    <!-- Modal Alterar -->
+    <div class="modal fade" id="mdlAlterarCliente" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>MCI:
+                        <span id="mciClienteEdicao"></span>
+                    </h2>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="inputNome">Nome</label>
+                            <input type="text" class="form-control" id="inputAlterarNome" placeholder="Digite o nome">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDocumento">Documento</label>
+                            <input type="text" class="form-control" id="inputAlterarDocumento" placeholder="Digite o documento">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="app.alterarCliente()">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIM: Modal Alterar -->
+
+    <script src="/mci-clientes/jquery.min.js"></script>
+    <script src="/mci-clientes/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/mci-clientes/bootstrap.min.css">
+    <link rel="stylesheet" href="/mci-clientes/styles.css">
+    <script src="/mci-clientes/script.js"></script>
+    <script src="//localhost:35729/livereload.js"></script>
+</body>
+
+</html>
+```
+
+- styles.css
+```css
+.jumbotron {
+    padding: 0.5em 0.6em;
+}
+
+.jumbotron h1 {
+    font-size: 2em;
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    /* Light grey */
+    border-top: 16px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    opacity: 0.5;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    position: fixed;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+```
